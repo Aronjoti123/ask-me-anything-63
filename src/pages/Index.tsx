@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import ChatMessage from "@/components/ChatMessage";
 import QuestionInput from "@/components/QuestionInput";
 import { useToast } from "@/hooks/use-toast";
-import { Brain, Sparkles } from "lucide-react";
+import { Brain, Sparkles, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import monkBackground from "@/assets/monk-background.jpg";
+import type { User, Session } from "@supabase/supabase-js";
 
 interface Message {
   id: string;
@@ -14,7 +19,40 @@ const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState("");
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (!session) {
+        navigate("/auth");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
+  if (!user) {
+    return null;
+  }
 
   const handleQuestionSubmit = async (question: string) => {
     const userMessage: Message = {
@@ -118,29 +156,50 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent blur-lg opacity-50 rounded-full" />
-              <div className="relative bg-gradient-to-br from-primary to-accent p-2 rounded-full">
-                <Brain className="h-6 w-6 text-primary-foreground" />
+    <div className="min-h-screen relative">
+      {/* Background */}
+      <div 
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${monkBackground})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-background/95" />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10">
+        {/* Header */}
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent blur-lg opacity-50 rounded-full" />
+                  <div className="relative bg-gradient-to-br from-primary to-accent p-2 rounded-full">
+                    <Brain className="h-6 w-6 text-primary-foreground" />
+                  </div>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    AI Question Answering
+                  </h1>
+                  <p className="text-sm text-muted-foreground">Ask anything, get instant answers</p>
+                </div>
               </div>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                AI Question Answering
-              </h1>
-              <p className="text-sm text-muted-foreground">Ask anything, get instant answers</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </Button>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Main Content */}
+        <main className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="flex flex-col gap-6 min-h-[calc(100vh-200px)]">
           {/* Messages */}
           <div className="flex-1 space-y-4">
@@ -180,8 +239,9 @@ const Index = () => {
           <div className="sticky bottom-0 bg-gradient-to-t from-background via-background to-transparent pt-4">
             <QuestionInput onSubmit={handleQuestionSubmit} isLoading={isLoading} />
           </div>
-        </div>
-      </main>
+          </div>
+        </main>
+      </div>
     </div>
   );
 };
