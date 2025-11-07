@@ -179,9 +179,14 @@ const Index = () => {
                   </div>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    AI Question Answering
-                  </h1>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                      AI Question Answering
+                    </h1>
+                    <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full border border-primary/20">
+                      GPT-5
+                    </span>
+                  </div>
                   <p className="text-sm text-muted-foreground">Ask anything, get instant answers</p>
                 </div>
               </div>
