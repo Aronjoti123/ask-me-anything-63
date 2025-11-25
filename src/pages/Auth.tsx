@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Brain } from "lucide-react";
+import { Brain, Chrome } from "lucide-react";
 import monkBackground from "@/assets/monk-background.jpg";
+import { Separator } from "@/components/ui/separator";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -77,6 +78,25 @@ const Auth = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to sign in with Google.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Background Image */}
@@ -139,6 +159,25 @@ const Auth = () => {
                 {loading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
               </Button>
             </form>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <Separator />
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+                or continue with
+              </span>
+            </div>
+
+            {/* Google Sign In */}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={handleGoogleSignIn}
+            >
+              <Chrome className="h-4 w-4 mr-2" />
+              Google
+            </Button>
 
             {/* Toggle */}
             <div className="mt-6 text-center">
