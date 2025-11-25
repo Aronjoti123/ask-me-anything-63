@@ -47,7 +47,8 @@ const Auth = () => {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+      // Only redirect on explicit sign in, not on sign up
+      if (event === 'SIGNED_IN' && session) {
         navigate("/");
       }
     });
@@ -83,10 +84,17 @@ const Auth = () => {
 
         if (error) throw error;
 
+        // Sign out after signup so user can sign in manually
+        await supabase.auth.signOut();
+
         toast({
           title: "Account created!",
-          description: "You can now start asking questions.",
+          description: "Please sign in with your credentials.",
         });
+
+        // Switch to login view
+        setIsLogin(true);
+        setPassword("");
       }
     } catch (error: any) {
       toast({
