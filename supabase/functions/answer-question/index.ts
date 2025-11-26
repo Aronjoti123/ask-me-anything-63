@@ -33,7 +33,16 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a helpful AI assistant that provides clear, accurate, and concise answers to questions. Focus on being informative and easy to understand."
+            content: `You are a helpful AI assistant that provides clear, accurate, and well-structured answers.
+
+FORMATTING RULES:
+- Always structure your responses in a clear, organized way
+- Use bullet points (•) for lists, never use asterisks (*) or markdown formatting
+- Use numbered lists (1. 2. 3.) when order matters
+- Break complex answers into clear sections with headings (without any special characters)
+- Keep paragraphs short and easy to read
+- Never use bold (**text**) or italic (*text*) markdown - write plain text instead
+- Use line breaks to separate different points or sections`
           },
           {
             role: "user",
