@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ChatMessage from "@/components/ChatMessage";
 import QuestionInput from "@/components/QuestionInput";
 import { useToast } from "@/hooks/use-toast";
-import { Brain, Sparkles, LogOut, User as UserIcon } from "lucide-react";
+import { Brain, Sparkles, LogOut, User as UserIcon, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import monkBackground from "@/assets/monk-background.jpg";
 import type { User, Session } from "@supabase/supabase-js";
@@ -214,11 +214,22 @@ const Index = () => {
               </div>
               <div className="flex items-center gap-3">
                 {displayName && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
+                  <button
+                    onClick={() => navigate("/profile")}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer"
+                  >
                     <UserIcon className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium text-foreground">{displayName}</span>
-                  </div>
+                  </button>
                 )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/profile")}
+                  className="h-9 w-9"
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
