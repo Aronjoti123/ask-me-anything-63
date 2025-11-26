@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ChatMessage from "@/components/ChatMessage";
 import QuestionInput from "@/components/QuestionInput";
 import { useToast } from "@/hooks/use-toast";
-import { Brain, Sparkles, LogOut } from "lucide-react";
+import { Brain, Sparkles, LogOut, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import monkBackground from "@/assets/monk-background.jpg";
 import type { User, Session } from "@supabase/supabase-js";
@@ -21,6 +21,7 @@ const Index = () => {
   const [streamingMessage, setStreamingMessage] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -30,6 +31,15 @@ const Index = () => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Fetch profile when user signs in
+        if (session?.user) {
+          setTimeout(() => {
+            fetchProfile(session.user.id);
+          }, 0);
+        } else {
+          setDisplayName(null);
+        }
       }
     );
 
@@ -39,11 +49,23 @@ const Index = () => {
       setUser(session?.user ?? null);
       if (!session) {
         navigate("/auth");
+      } else {
+        fetchProfile(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const fetchProfile = async (userId: string) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("user_id", userId)
+      .maybeSingle();
+    
+    setDisplayName(data?.display_name ?? null);
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -190,15 +212,23 @@ const Index = () => {
                   <p className="text-sm text-muted-foreground">Ask anything, get instant answers</p>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLogout}
-                className="gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </Button>
+              <div className="flex items-center gap-3">
+                {displayName && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
+                    <UserIcon className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">{displayName}</span>
+                  </div>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </Button>
+              </div>
             </div>
           </div>
         </header>
