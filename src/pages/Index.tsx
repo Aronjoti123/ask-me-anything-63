@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ChatMessage from "@/components/ChatMessage";
 import QuestionInput from "@/components/QuestionInput";
 import { useToast } from "@/hooks/use-toast";
-import { Brain, Sparkles, LogOut, User as UserIcon, Settings } from "lucide-react";
+import { Brain, Sparkles, LogOut, User as UserIcon, Settings, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import monkBackground from "@/assets/monk-background.jpg";
 import type { User, Session } from "@supabase/supabase-js";
@@ -22,6 +22,7 @@ const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
+  const [loadingMessages, setLoadingMessages] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -32,13 +33,15 @@ const Index = () => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Fetch profile when user signs in
+        // Fetch profile and messages when user signs in
         if (session?.user) {
           setTimeout(() => {
             fetchProfile(session.user.id);
+            loadMessages(session.user.id);
           }, 0);
         } else {
           setDisplayName(null);
+          setMessages([]);
         }
       }
     );
@@ -51,6 +54,7 @@ const Index = () => {
         navigate("/auth");
       } else {
         fetchProfile(session.user.id);
+        loadMessages(session.user.id);
       }
     });
 
@@ -65,6 +69,51 @@ const Index = () => {
       .maybeSingle();
     
     setDisplayName(data?.display_name ?? null);
+  };
+
+  const loadMessages = async (userId: string) => {
+    setLoadingMessages(true);
+    const { data, error } = await supabase
+      .from("chat_messages")
+      .select("id, message, is_user, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: true });
+
+    if (data && !error) {
+      setMessages(data.map(msg => ({
+        id: msg.id,
+        text: msg.message,
+        isUser: msg.is_user
+      })));
+    }
+    setLoadingMessages(false);
+  };
+
+  const saveMessage = async (text: string, isUser: boolean) => {
+    if (!user) return;
+    
+    await supabase.from("chat_messages").insert({
+      user_id: user.id,
+      message: text,
+      is_user: isUser
+    });
+  };
+
+  const clearChat = async () => {
+    if (!user) return;
+    
+    const { error } = await supabase
+      .from("chat_messages")
+      .delete()
+      .eq("user_id", user.id);
+
+    if (!error) {
+      setMessages([]);
+      toast({
+        title: "Chat Cleared",
+        description: "Your conversation history has been deleted.",
+      });
+    }
   };
 
   const handleLogout = async () => {
@@ -86,6 +135,9 @@ const Index = () => {
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
     setStreamingMessage("");
+
+    // Save user message to database
+    saveMessage(question, true);
 
     try {
       const response = await fetch(
@@ -163,6 +215,8 @@ const Index = () => {
           isUser: false,
         };
         setMessages((prev) => [...prev, aiMessage]);
+        // Save AI response to database
+        saveMessage(accumulatedText, false);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -221,6 +275,17 @@ const Index = () => {
                     <UserIcon className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium text-foreground">{displayName}</span>
                   </button>
+                )}
+                {messages.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={clearChat}
+                    className="h-9 w-9 text-muted-foreground hover:text-destructive"
+                    title="Clear chat history"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 )}
                 <Button
                   variant="ghost"
