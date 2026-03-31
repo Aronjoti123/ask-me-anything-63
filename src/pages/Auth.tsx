@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Brain } from "lucide-react";
-import monkBackground from "@/assets/monk-background.jpg";
+import noraBackground from "@/assets/nora-background.jpg";
 import { Separator } from "@/components/ui/separator";
 
 const GoogleIcon = () => (
