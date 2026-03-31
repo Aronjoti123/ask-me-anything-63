@@ -260,7 +260,7 @@ const Index = () => {
                       AI Question Answering
                     </h1>
                     <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full border border-primary/20">
-                      GPT-5
+                      Gemini Flash
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">Ask anything, get instant answers</p>
