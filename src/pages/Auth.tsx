@@ -136,7 +136,7 @@ const Auth = () => {
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${monkBackground})` }}
+        style={{ backgroundImage: `url(${noraBackground})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-background/95 backdrop-blur-sm" />
       </div>
