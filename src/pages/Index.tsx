@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ChatMessage from "@/components/ChatMessage";
 import QuestionInput from "@/components/QuestionInput";
 import { useToast } from "@/hooks/use-toast";
-import { Brain, Sparkles, LogOut, User as UserIcon, Settings, Trash2 } from "lucide-react";
+import { Brain, Sparkles, LogOut, User as UserIcon, Settings, Trash2, Clock, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import monkBackground from "@/assets/monk-background.jpg";
 import type { User, Session } from "@supabase/supabase-js";
