@@ -62,6 +62,11 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
       .from("profiles")
