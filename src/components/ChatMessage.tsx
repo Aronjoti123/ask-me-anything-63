@@ -1,4 +1,8 @@
+import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { Volume2, VolumeX } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { speakText, stopSpeaking } from "@/hooks/use-speech";
 
 interface ChatMessageProps {
   message: string;
@@ -7,6 +11,19 @@ interface ChatMessageProps {
 }
 
 const ChatMessage = ({ message, isUser, isStreaming }: ChatMessageProps) => {
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  const handleSpeak = async () => {
+    if (isSpeaking) {
+      stopSpeaking();
+      setIsSpeaking(false);
+    } else {
+      setIsSpeaking(true);
+      await speakText(message);
+      setIsSpeaking(false);
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -28,6 +45,21 @@ const ChatMessage = ({ message, isUser, isStreaming }: ChatMessageProps) => {
             <span className="inline-block w-1 h-4 ml-1 bg-current animate-pulse" />
           )}
         </p>
+        {!isUser && !isStreaming && (
+          <div className="mt-2 flex justify-end">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleSpeak}
+              className={cn(
+                "h-7 w-7 rounded-full",
+                isSpeaking ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {isSpeaking ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
