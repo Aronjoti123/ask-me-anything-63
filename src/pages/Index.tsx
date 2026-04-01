@@ -272,6 +272,17 @@ const Index = () => {
                   <p className="text-sm text-muted-foreground">Ask anything, get instant answers</p>
                 </div>
               </div>
+              <div className="hidden sm:flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-xl border border-border">
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>{currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+                <div className="w-px h-4 bg-border" />
+                <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                  <Clock className="h-3.5 w-3.5 text-primary" />
+                  <span>{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                </div>
+              </div>
               <div className="flex items-center gap-3">
                 {displayName && (
                   <button
