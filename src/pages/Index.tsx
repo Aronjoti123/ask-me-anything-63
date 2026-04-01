@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ChatMessage from "@/components/ChatMessage";
 import QuestionInput from "@/components/QuestionInput";
 import { useToast } from "@/hooks/use-toast";
-import { Brain, Sparkles, LogOut, User as UserIcon, Settings, Trash2 } from "lucide-react";
+import { Brain, Sparkles, LogOut, User as UserIcon, Settings, Trash2, Clock, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import monkBackground from "@/assets/monk-background.jpg";
 import type { User, Session } from "@supabase/supabase-js";
@@ -23,6 +23,7 @@ const Index = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [loadingMessages, setLoadingMessages] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -60,6 +61,11 @@ const Index = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
@@ -264,6 +270,17 @@ const Index = () => {
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">Ask anything, get instant answers</p>
+                </div>
+              </div>
+              <div className="hidden sm:flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-xl border border-border">
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>{currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+                <div className="w-px h-4 bg-border" />
+                <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                  <Clock className="h-3.5 w-3.5 text-primary" />
+                  <span>{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
                 </div>
               </div>
               <div className="flex items-center gap-3">
